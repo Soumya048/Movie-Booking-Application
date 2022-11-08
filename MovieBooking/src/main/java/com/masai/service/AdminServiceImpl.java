@@ -9,19 +9,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.masai.dto.LoginDTO;
+import com.masai.dto.MovieTheatreDTO;
 import com.masai.exception.AdminException;
+import com.masai.exception.InvalidUrlException;
 import com.masai.exception.LogInException;
 import com.masai.exception.MovieException;
+import com.masai.exception.SeatExistException;
 import com.masai.exception.TheatreException;
 import com.masai.exception.TicketException;
 import com.masai.model.Admin;
 import com.masai.model.AdminSession;
 import com.masai.model.Movie;
+import com.masai.model.Seats;
 import com.masai.model.Theatre;
 import com.masai.model.Ticket;
 import com.masai.repository.AdminDao;
 import com.masai.repository.AdminSessionDao;
 import com.masai.repository.MovieDao;
+import com.masai.repository.SeatsDao;
 import com.masai.repository.TheatreDao;
 import com.masai.repository.TicketDao;
 
@@ -41,7 +46,10 @@ public class AdminServiceImpl implements AdminService {
 	private MovieDao movieDao;
 	
 	@Autowired
-	private TicketDao ticketDao;
+	private SeatsDao seatsDao;
+	
+	@Autowired
+	private UrlValidationService urlValidationService;
 
 	@Override
 	public Admin adminRegister(Admin admin) throws AdminException {
@@ -169,7 +177,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public Movie insertMovies(Movie movie, String key) throws LogInException, MovieException {
+	public Movie insertMovies(Movie movie, String key) throws LogInException, MovieException, InvalidUrlException {
 		
 		Optional<AdminSession> opt = adminSessionDao.findByUuId(key);
 
@@ -181,11 +189,16 @@ public class AdminServiceImpl implements AdminService {
 		if(movieOpt.isPresent())
 			throw new MovieException("Movie already exist");
 		
+		String posterUrl = movie.getPosterUrl();
+		
+		if(!urlValidationService.isValidURL(posterUrl)) 
+			throw new InvalidUrlException("Invalid Poster Url");
+			
 		return movieDao.save(movie);
 	}
 
 	@Override
-	public Movie addMoviesToTheatre(Integer movieId, Integer theatreId, String key) throws LogInException, TheatreException, MovieException {
+	public MovieTheatreDTO addMoviesToTheatre(Integer movieId, Integer theatreId, String key) throws LogInException, TheatreException, MovieException, SeatExistException {
 		
 		Optional<AdminSession> opt = adminSessionDao.findByUuId(key);
 
@@ -202,13 +215,30 @@ public class AdminServiceImpl implements AdminService {
 		if(theatreOpt.isEmpty()) 
 			throw new TheatreException("Theatre not found");
 		
+		Optional<Seats> seatsOpt = seatsDao.findSeatsByMovieIdAndTheatreId(movieId, theatreId);
+		
+		if(seatsOpt.isPresent())
+			throw new SeatExistException("Seats Already Exist");
+		
 		Movie movie = movieOpt.get();
 		Theatre theatre = theatreOpt.get();
 		
 		movie.getTheatreList().add(theatre);
 		theatre.getMovieList().add(movie);
-
-		return movieDao.save(movie);
+		
+		movieDao.save(movie);
+		
+		Seats seats = new Seats();
+		seats.setMovieId(movieId);
+		seats.setTheatreId(theatreId);
+		Seats savedSeats = seatsDao.save(seats);
+		
+		MovieTheatreDTO movieTheatreData = new MovieTheatreDTO();
+		movieTheatreData.setMovieDetails(movie);
+		movieTheatreData.setTheatreDetails(theatre);
+		movieTheatreData.setTotalTickets(savedSeats.getTotalTickets());
+		
+		return movieTheatreData;
 		
 	}
 

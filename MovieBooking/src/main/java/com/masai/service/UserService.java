@@ -8,6 +8,7 @@ import com.masai.exception.EmailException;
 import com.masai.exception.LogInException;
 import com.masai.exception.MovieException;
 import com.masai.exception.OrderException;
+import com.masai.exception.SeatExistException;
 import com.masai.exception.TheatreException;
 import com.masai.exception.TicketException;
 import com.masai.exception.UserException;
@@ -35,6 +36,6 @@ public interface UserService {
 	public List<Theatre> SortTheatreByPirce(String key) throws LogInException, TheatreException;
 	public List<List<Theatre>> sortTheatreByAvailablity(String key) throws LogInException, TheatreException;
 	
-	public Order bookMovies(Integer noOfseats, Integer movieId, Integer theatreId, String key) throws EmailException, OrderException, TicketException, LogInException, TheatreException, MovieException; 
+	public Order bookMovies(Integer noOfseats, Integer movieId, Integer theatreId, String key) throws EmailException, OrderException, TicketException, LogInException, TheatreException, MovieException, SeatExistException; 
 	
 }

@@ -31,6 +31,7 @@ import com.masai.exception.EmailException;
 import com.masai.exception.LogInException;
 import com.masai.exception.MovieException;
 import com.masai.exception.OrderException;
+import com.masai.exception.SeatExistException;
 import com.masai.exception.TheatreException;
 import com.masai.exception.TicketException;
 import com.masai.exception.UserException;
@@ -138,7 +139,7 @@ public class UserController {
 	}
 	
 	@PatchMapping("/bookMovie/{noOfseats}/{movieId}/{theatreId}")
-	public ResponseEntity<Order> bookMovieHandler(@PathVariable Integer noOfseats, @PathVariable Integer movieId, @PathVariable Integer theatreId, @RequestParam String key) throws OrderException, TicketException, LogInException, TheatreException, MovieException, EmailException {
+	public ResponseEntity<Order> bookMovieHandler(@PathVariable Integer noOfseats, @PathVariable Integer movieId, @PathVariable Integer theatreId, @RequestParam String key) throws OrderException, TicketException, LogInException, TheatreException, MovieException, EmailException, SeatExistException {
 		Order booked = userService.bookMovies( noOfseats, movieId, theatreId, key);
 		return new ResponseEntity<Order>(booked, HttpStatus.OK);
 	}

@@ -1,9 +1,6 @@
 package com.masai.dto;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.masai.model.Movie;
 import com.masai.model.Theatre;
 
 import lombok.AllArgsConstructor;
@@ -13,9 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MovieDTO {
+public class MovieTheatreDTO {
 
-	private List<Theatre> theatreList = new ArrayList<Theatre>();
-	private LocalDate date;
+	private Movie movieDetails;
 	
+	private Theatre theatreDetails;
+	
+	private Integer totalTickets;  
+
 }
