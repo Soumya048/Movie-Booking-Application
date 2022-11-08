@@ -14,9 +14,32 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 public class GlobalExceptionHandler {
 	
 	
+	@ExceptionHandler(InvalidUrlException.class)
+	public ResponseEntity<ErrorDetails> invalidUrlExceptionHandler(InvalidUrlException ie, WebRequest req) {
+		ErrorDetails err = new ErrorDetails();
+		
+		err.setTimestamp(LocalDateTime.now());
+		err.setMessage(ie.getMessage());
+		err.setDetails(req.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(err, HttpStatus.BAD_REQUEST);
+	}
+	
+	
+	@ExceptionHandler(SeatExistException.class)
+	public ResponseEntity<ErrorDetails> seatExistExceptionHandler(SeatExistException se, WebRequest req) {
+		ErrorDetails err = new ErrorDetails();
+		
+		err.setTimestamp(LocalDateTime.now());
+		err.setMessage(se.getMessage());
+		err.setDetails(req.getDescription(false));
+		
+		return new ResponseEntity<ErrorDetails>(err, HttpStatus.BAD_REQUEST);
+	}
+	
 	
 	@ExceptionHandler(EmailException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(EmailException ee, WebRequest req) {
+	public ResponseEntity<ErrorDetails> emailExceptionHandler(EmailException ee, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());
@@ -27,7 +50,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(TicketException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(TicketException te, WebRequest req) {
+	public ResponseEntity<ErrorDetails> ticketExceptionHandler(TicketException te, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());
@@ -39,7 +62,7 @@ public class GlobalExceptionHandler {
 	
 	
 	@ExceptionHandler(OrderException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(OrderException oe, WebRequest req) {
+	public ResponseEntity<ErrorDetails> orderExceptionHandler(OrderException oe, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());
@@ -50,7 +73,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(MovieException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(MovieException me, WebRequest req) {
+	public ResponseEntity<ErrorDetails> movieExceptionHandler(MovieException me, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());
@@ -61,7 +84,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(TheatreException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(TheatreException te, WebRequest req) {
+	public ResponseEntity<ErrorDetails> theatreExceptionHandler(TheatreException te, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());
@@ -72,7 +95,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(AdminException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(AdminException ae, WebRequest req) {
+	public ResponseEntity<ErrorDetails> adminExceptionHandler(AdminException ae, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());
@@ -83,7 +106,7 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler(LogInException.class)
-	public ResponseEntity<ErrorDetails> tripBookingExceptionHandler(LogInException le, WebRequest req) {
+	public ResponseEntity<ErrorDetails> logInExceptionHandler(LogInException le, WebRequest req) {
 		ErrorDetails err = new ErrorDetails();
 		
 		err.setTimestamp(LocalDateTime.now());

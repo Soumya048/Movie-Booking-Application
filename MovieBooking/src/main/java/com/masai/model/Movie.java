@@ -40,6 +40,9 @@ public class Movie {
 	@NotNull
 	private String movieName;
 	
+	@NotNull
+	private String posterUrl;
+	
 	@ElementCollection
 	private List<String> cast = new ArrayList<String>();
 
@@ -55,12 +58,12 @@ public class Movie {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate dateOfRelease;
 	
-	@JsonIgnore
-	@ElementCollection
-	private List<String> seats = new ArrayList<String>(); 
-	
-	@JsonIgnore
-	private Integer totalTickets = 49;  
+//	@JsonIgnore
+//	@ElementCollection
+//	private List<String> seats = new ArrayList<String>(); 
+//	
+//	@JsonIgnore
+//	private Integer totalTickets = 49;  
 	
 	@JsonIgnore
 	@ManyToMany(cascade = CascadeType.ALL)

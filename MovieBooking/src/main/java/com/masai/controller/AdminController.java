@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.masai.dto.LoginDTO;
+import com.masai.dto.MovieTheatreDTO;
 import com.masai.exception.AdminException;
+import com.masai.exception.InvalidUrlException;
 import com.masai.exception.LogInException;
 import com.masai.exception.MovieException;
+import com.masai.exception.SeatExistException;
 import com.masai.exception.TheatreException;
 import com.masai.model.Admin;
 import com.masai.model.AdminSession;
@@ -72,15 +75,15 @@ public class AdminController {
 	}
 	
 	@PostMapping("/movie")
-	public ResponseEntity<Movie> insertMovieHandler(@Valid @RequestBody Movie movie, @RequestParam String key) throws LogInException, MovieException   {
+	public ResponseEntity<Movie> insertMovieHandler(@Valid @RequestBody Movie movie, @RequestParam String key) throws LogInException, MovieException, InvalidUrlException   {
 		Movie insertedMovie = adminService.insertMovies(movie, key);
-		return new  ResponseEntity<Movie>(insertedMovie, HttpStatus.CREATED);
+		return new ResponseEntity<Movie>(insertedMovie, HttpStatus.CREATED);
 	}
 	
 	@PatchMapping("/movie/{movieId}/{theatreId}")
-	public ResponseEntity<Movie> addMovieToTheatreHandler(@PathVariable Integer movieId, @PathVariable Integer theatreId, @RequestParam String key) throws LogInException, MovieException, TheatreException   {
-		Movie insertedToMovie = adminService.addMoviesToTheatre(movieId, theatreId, key);
-		return new  ResponseEntity<Movie>(insertedToMovie, HttpStatus.OK);
+	public ResponseEntity<MovieTheatreDTO> addMovieToTheatreHandler(@PathVariable Integer movieId, @PathVariable Integer theatreId, @RequestParam String key) throws LogInException, MovieException, TheatreException, SeatExistException   {
+		MovieTheatreDTO movieTheatreData = adminService.addMoviesToTheatre(movieId, theatreId, key);
+		return new ResponseEntity<MovieTheatreDTO>(movieTheatreData, HttpStatus.OK);
 	}
 	
 	

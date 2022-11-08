@@ -19,16 +19,19 @@ import com.masai.exception.EmailException;
 import com.masai.exception.LogInException;
 import com.masai.exception.MovieException;
 import com.masai.exception.OrderException;
+import com.masai.exception.SeatExistException;
 import com.masai.exception.TheatreException;
 import com.masai.exception.TicketException;
 import com.masai.exception.UserException;
 import com.masai.model.Movie;
 import com.masai.model.Order;
+import com.masai.model.Seats;
 import com.masai.model.Theatre;
 import com.masai.model.Ticket;
 import com.masai.model.User;
 import com.masai.model.UserSession;
 import com.masai.repository.MovieDao;
+import com.masai.repository.SeatsDao;
 import com.masai.repository.TheatreDao;
 import com.masai.repository.TicketDao;
 import com.masai.repository.UserDao;
@@ -52,9 +55,15 @@ public class UserServiceImpl implements UserService  {
 	@Autowired
 	private TicketDao ticketDao;
 	
-	@Autowired private JavaMailSender javaMailSender;
+	@Autowired
+	private SeatsDao seatsDao;
+	
+	@Autowired 
+	private JavaMailSender javaMailSender;
 	 
 	@Value("${spring.mail.username}") private String sender;
+	
+	
 
 	@Override
 	public User registerUser(User user) throws UserException {
@@ -230,9 +239,7 @@ public class UserServiceImpl implements UserService  {
 				MovieDTO mvDto = new MovieDTO();
 				
 				mvDto.setTheatreList(movie.getTheatreList());
-				mvDto.setAvailability(movie.getTotalTickets());
 				mvDto.setDate(movie.getDateOfRelease());
-				
 				movieDtoList.add(mvDto);
 				
 				if(!movieDtoList.isEmpty())
@@ -251,9 +258,7 @@ public class UserServiceImpl implements UserService  {
 					MovieDTO mvDto = new MovieDTO();
 					
 					mvDto.setTheatreList(movie.getTheatreList());
-					mvDto.setAvailability(movie.getTotalTickets());
 					mvDto.setDate(movie.getDateOfRelease());
-					
 					movieDtoList.add(mvDto);
 		
 				}
@@ -278,17 +283,9 @@ public class UserServiceImpl implements UserService  {
 		
 		if (usOpt.isEmpty())
 			throw new LogInException("User is not logged in, Please login first!");
-		
-		List<Movie> movieList = movieDao.findAll();
-		
-		List<Movie> movieWithTickets = new ArrayList<Movie>();
-		
-		for(Movie mv:movieList) {
-			if(mv.getTotalTickets() > 0) {
-				movieWithTickets.add(mv);
-			}
-		}
-		
+
+		List<Movie> movieWithTickets = seatsDao.findMoviesBySeatsAvailability();
+
 		if(movieWithTickets.isEmpty()) 
 			throw new MovieException("Movies not found");
 		
@@ -403,7 +400,8 @@ public class UserServiceImpl implements UserService  {
 		if (usOpt.isEmpty())
 			throw new LogInException("User is not logged in, Please login first!");
 		
-		List<List<Theatre>> theatresList = movieDao.findAllTheatresSortByAvailable();
+//		movieDao.findAllTheatresSortByAvailable()
+		List<List<Theatre>> theatresList = null;
 		
 		if(theatresList.isEmpty()) 
 			throw new TheatreException("Theatres not found");
@@ -413,7 +411,7 @@ public class UserServiceImpl implements UserService  {
 
 
 	@Override
-	public Order bookMovies(Integer noOfseats, Integer movieId, Integer theatreId, String key) throws EmailException, OrderException, LogInException, TheatreException, TicketException, MovieException {
+	public Order bookMovies(Integer noOfseats, Integer movieId, Integer theatreId, String key) throws EmailException, OrderException, LogInException, TheatreException, TicketException, MovieException, SeatExistException {
 		
 		Optional<UserSession> usOpt = userSessionDao.findByUuId(key);
 		
@@ -430,6 +428,15 @@ public class UserServiceImpl implements UserService  {
 		if(theatreOpt.isEmpty())
 			throw new TheatreException("Thetre not found");
 		
+		Optional<Seats> seatsOpt = seatsDao.findSeatsByMovieIdAndTheatreId(movieId, theatreId);
+		
+		if(seatsOpt.isEmpty()) 
+			throw new SeatExistException("Saets does not exist");
+		
+		Seats seats = seatsOpt.get();
+		
+		
+		
 		Optional<User> userOpt = userDao.findById(usOpt.get().getUserId());
 		User user = userOpt.get();
 		
@@ -441,9 +448,9 @@ public class UserServiceImpl implements UserService  {
 		
 		String orderedSeatNums = "";
 				
-		if(movie.getTotalTickets() > noOfseats) {
+		if(seats.getTotalTickets() > noOfseats) {
 			
-			movie.setTotalTickets(movie.getTotalTickets() - noOfseats);
+			seats.setTotalTickets(seats.getTotalTickets() - noOfseats);
 			
 
 			String seatNo = "";
@@ -452,7 +459,7 @@ public class UserServiceImpl implements UserService  {
 			
 			for(int i = 0; i < noOfseats; i++) {
 				
-				int filledSeatSize = movie.getSeats().size();
+				int filledSeatSize = seats.getSeats().size();
 				
 				if(filledSeatSize >= 0 && filledSeatSize <= 6) {
 					
@@ -462,7 +469,7 @@ public class UserServiceImpl implements UserService  {
 					
 					
 					seatNo +=  "A"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				else if(filledSeatSize >= 7 && filledSeatSize <= 13) {
 					
@@ -471,7 +478,7 @@ public class UserServiceImpl implements UserService  {
 					}
 					
 					seatNo +=  "B"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				else if(filledSeatSize >= 14 && filledSeatSize <= 20) {
 					
@@ -480,7 +487,7 @@ public class UserServiceImpl implements UserService  {
 					}
 					
 					seatNo +=  "C"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				else if(filledSeatSize >= 21 && filledSeatSize <= 27) {
 					
@@ -490,7 +497,7 @@ public class UserServiceImpl implements UserService  {
 					
 				
 					seatNo +=  "D"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				else if(filledSeatSize >= 28 && filledSeatSize <= 34) {
 					
@@ -499,7 +506,7 @@ public class UserServiceImpl implements UserService  {
 					}
 				
 					seatNo +=  "E"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				else if(filledSeatSize >= 35 && filledSeatSize <= 41) {
 					
@@ -508,7 +515,7 @@ public class UserServiceImpl implements UserService  {
 					}
 					
 					seatNo +=  "F"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				else if(filledSeatSize >= 42 && filledSeatSize <= 49) {
 					
@@ -517,14 +524,14 @@ public class UserServiceImpl implements UserService  {
 					}
 					
 					seatNo +=  "G"+(filledSeatSize + 1); 
-					movie.getSeats().add(seatNo);
+					seats.getSeats().add(seatNo);
 				}
 				orderedSeatNums += seatNo + " ";
 				seatNo = "";
 		
 			}
 			
-			System.out.println(movie.getSeats());
+			System.out.println(seats.getSeats());
 			System.out.println("seats: " + orderedSeatNums);
 			
 			
@@ -563,6 +570,7 @@ public class UserServiceImpl implements UserService  {
 		movie.getTicketList().add(ticket);
 		movieDao.save(movie);
 		
+		seatsDao.save(seats);
 		
 		String messageBody = 
 				"Hi," + user.getAbstractUser().getUsername()
@@ -573,7 +581,7 @@ public class UserServiceImpl implements UserService  {
 				+ "Theatre Details: " + order.getTheatreName() + ", " + theatre.getCity() + ", " + theatre.getPincode() + "\n"
 				+ "Category: " + ticket.getCategory() + "\n"
 				+ "Seat Number: " + order.getSeatNumbers() + "\n"
-				+ "Total Price" + order.getTotalPrice() + "\n"
+				+ "Total Price: " + order.getTotalPrice() + "\n"
 				+ "\n"
 				+ "\n" 
 				+ "Thank You";
