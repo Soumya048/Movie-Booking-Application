@@ -608,5 +608,34 @@ public class UserServiceImpl implements UserService  {
 
 	}
 
+
+	@Override
+	public Movie getMovieById(Integer movieId) throws MovieException {
+		
+		Optional<Movie> movieOpt = movieDao.findById(movieId);
+		
+		if(movieOpt.isEmpty())
+			throw new MovieException("Movie does not exist with this id: " + movieId);
+		
+		return movieOpt.get();
+	}
+
+
+	@Override
+	public List<Theatre> getTheatreByMovieId(Integer movieId) throws TheatreException, MovieException {
+		
+		Optional<Movie> movieOpt = movieDao.findById(movieId);
+		
+		if(movieOpt.isEmpty())
+			throw new MovieException("Movie does not exist with this id: " + movieId);
+		
+		List<Theatre> theatreList = movieOpt.get().getTheatreList();
+		
+		if(theatreList.isEmpty()) 
+			throw new TheatreException("No Theatre available");
+		
+		return theatreList;
+	}
+
 	
 }

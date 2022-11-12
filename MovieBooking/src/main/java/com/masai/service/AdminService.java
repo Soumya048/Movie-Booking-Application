@@ -1,6 +1,9 @@
 package com.masai.service;
 
 
+import java.util.List;
+import java.util.Map;
+
 import com.masai.dto.LoginDTO;
 import com.masai.dto.MovieTheatreDTO;
 import com.masai.exception.AdminException;
@@ -25,5 +28,5 @@ public interface AdminService {
 	public Theatre insertTheatre(Theatre theatre, String key) throws TheatreException, LogInException;
 	public Movie insertMovies(Movie movie, String key) throws LogInException, MovieException, InvalidUrlException;
 	public MovieTheatreDTO addMoviesToTheatre(Integer movieId, Integer theatreId, String key) throws LogInException, TheatreException, MovieException, SeatExistException; 
-	
+	public Map<String, Object> getAllTheatresByPageAndSize(Integer page, Integer size, String key) throws TheatreException, LogInException;
 }
