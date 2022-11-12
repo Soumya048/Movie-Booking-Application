@@ -36,6 +36,10 @@ public interface UserService {
 	public List<Theatre> SortTheatreByPirce(String key) throws LogInException, TheatreException;
 	public List<List<Theatre>> sortTheatreByAvailablity(String key) throws LogInException, TheatreException;
 	
+	// no key require
+	public Movie getMovieById(Integer movieId) throws MovieException;
+	public List<Theatre> getTheatreByMovieId(Integer movieId) throws TheatreException, MovieException;
+	
 	public Order bookMovies(Integer noOfseats, Integer movieId, Integer theatreId, String key) throws EmailException, OrderException, TicketException, LogInException, TheatreException, MovieException, SeatExistException; 
 	
 }

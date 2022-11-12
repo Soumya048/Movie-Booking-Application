@@ -1,5 +1,7 @@
 package com.masai.controller;
 
+import java.util.Map;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +88,11 @@ public class AdminController {
 		return new ResponseEntity<MovieTheatreDTO>(movieTheatreData, HttpStatus.OK);
 	}
 	
+	@GetMapping("/theatres-pagewise")
+	public ResponseEntity<Map<String, Object>> getAllTheatresByPageAndSizeHandler(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "5") Integer size, @RequestParam String key) throws TheatreException, LogInException {
+		Map<String, Object> theatreList = adminService.getAllTheatresByPageAndSize(page, size, key);
+		return new ResponseEntity<Map<String, Object>>(theatreList, HttpStatus.OK);
+	}
 	
 
 }
