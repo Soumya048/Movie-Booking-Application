@@ -13,14 +13,17 @@ function getMovieData(url) {
     .catch(err => console.log(err));
 } 
 
+let movieContainer = document.getElementById("movie-body-section");
+let theatreContainer = document.getElementById("theatre-section");
+
 async function displayMovieData() {
     const data = await getMovieData(url);
     console.log(data); 
 
     document.title = data.movieName;
 
-    let movieContainer = document.getElementById("movie-body-section");
     movieContainer.innerHTML = "";
+    theatreContainer.innerHTML = "";
 
     movieContainer.innerHTML = `
     <div id="movie-card" class="container">
@@ -89,9 +92,29 @@ async function displayMovieData() {
     
     `
 
+    const bookBtn = document.getElementById("book-tickets-btn");
+    bookBtn.addEventListener("click", displayTheatreData);
+
 }
 displayMovieData();
 // console.log( movie);
+
+
+
+
+function displayTheatreData() {
+    movieContainer.innerHTML = "";
+    theatreContainer.innerHTML = "";
+
+    theatreContainer.innerHTML = `
+    
+    <h1> Theatre</h1>
+
+    `;
+}
+
+
+
 
 var day = new Date();
 console.log(day);
