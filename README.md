@@ -22,7 +22,7 @@ REST API for an Online Movie Booking Application. Users can book movie tickets t
 - Admin Module
 - Customer Module
 - Movie and Theatre Module
-- Movie Booking Management Module
+- Movie Booking Module
 
 ## ER Diagram:
 
